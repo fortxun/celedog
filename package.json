@@ -1,0 +1,34 @@
+{
+  "name": "celedog",
+  "version": "0.1.0",
+  "description": "Celebrity dog breeding game built with Phaser 3",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage",
+    "lint": "eslint src --ext .js",
+    "lint:fix": "eslint src --ext .js --fix"
+  },
+  "keywords": [
+    "game",
+    "phaser",
+    "breeding",
+    "dogs"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "phaser": "^3.90.0",
+    "phaser3-rex-plugins": "^1.80.6"
+  },
+  "devDependencies": {
+    "@vitest/ui": "^1.0.0",
+    "eslint": "^8.54.0",
+    "vite": "^5.0.0",
+    "vitest": "^1.0.0"
+  }
+}
