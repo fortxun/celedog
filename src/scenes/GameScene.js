@@ -4,6 +4,7 @@
  */
 
 import Phaser from 'phaser';
+import DogSprite from '../components/DogSprite.js';
 
 class GameScene extends Phaser.Scene {
   constructor() {
@@ -60,48 +61,16 @@ class GameScene extends Phaser.Scene {
    * Create a dog display card
    */
   createDogDisplay(x, y, dog) {
-    const card = this.add.container(x, y);
-
-    // Background
-    const bg = this.add.rectangle(0, 0, 120, 140, 0x333333);
-    bg.setStrokeStyle(2, 0xffffff);
-
-    // Placeholder sprite (colored circle)
-    const sprite = this.add.circle(0, -20, 40, 0x8B4513);
-
-    // Name
-    const name = this.add.text(0, 40, dog.name || 'Unnamed', {
-      font: '12px Arial',
-      fill: '#ffffff'
-    }).setOrigin(0.5);
-
-    // Rarity
-    const rarity = this.add.text(0, 55, dog.getRarityName(), {
-      font: '10px Arial',
-      fill: '#FFD700'
-    }).setOrigin(0.5);
-
-    card.add([bg, sprite, name, rarity]);
-
-    // Make interactive
-    card.setInteractive(
-      new Phaser.Geom.Rectangle(-60, -70, 120, 140),
-      Phaser.Geom.Rectangle.Contains
-    );
-
-    card.on('pointerover', () => {
-      bg.setFillStyle(0x444444);
+    // Use new DogSprite component
+    const dogSprite = new DogSprite(this, x, y, dog, {
+      size: 80,
+      showName: true,
+      showRarity: true,
+      interactive: true,
+      clickCallback: (dog) => this.showDogDetails(dog)
     });
 
-    card.on('pointerout', () => {
-      bg.setFillStyle(0x333333);
-    });
-
-    card.on('pointerdown', () => {
-      this.showDogDetails(dog);
-    });
-
-    return card;
+    return dogSprite;
   }
 
   /**

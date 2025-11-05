@@ -5,6 +5,7 @@
 
 import Phaser from 'phaser';
 import { formatNumber } from '../utils/helpers.js';
+import SaveSystem from '../systems/SaveSystem.js';
 
 class UIScene extends Phaser.Scene {
   constructor() {
@@ -44,6 +45,17 @@ class UIScene extends Phaser.Scene {
     // Notification container (bottom-center)
     this.notifications = [];
     this.notificationY = 650;
+
+    // Auto-save timer (every 60 seconds)
+    this.autoSaveTimer = this.time.addEvent({
+      delay: 60000, // 60 seconds
+      callback: this.performAutoSave,
+      callbackScope: this,
+      loop: true
+    });
+
+    // Save button (top-right, below kennel)
+    this.createSaveButton();
   }
 
   /**
@@ -206,8 +218,85 @@ class UIScene extends Phaser.Scene {
     this.updateKennelDisplay();
   }
 
+  /**
+   * Create save button
+   */
+  createSaveButton() {
+    const { width } = this.cameras.main;
+    const x = width - 20;
+    const y = 100;
+
+    const button = this.add.container(x, y);
+
+    const bg = this.add.rectangle(0, 0, 80, 35, 0x4CAF50);
+    bg.setStrokeStyle(2, 0xffffff);
+
+    const label = this.add.text(0, 0, '💾 Save', {
+      font: '14px Arial',
+      fill: '#ffffff'
+    }).setOrigin(0.5);
+
+    button.add([bg, label]);
+    button.setOrigin(1, 0);
+
+    button.setInteractive(
+      new Phaser.Geom.Rectangle(-80, 0, 80, 35),
+      Phaser.Geom.Rectangle.Contains
+    );
+
+    button.on('pointerover', () => {
+      bg.setFillStyle(0x66BB6A);
+      this.game.canvas.style.cursor = 'pointer';
+    });
+
+    button.on('pointerout', () => {
+      bg.setFillStyle(0x4CAF50);
+      this.game.canvas.style.cursor = 'default';
+    });
+
+    button.on('pointerdown', () => {
+      this.performManualSave();
+    });
+
+    this.saveButton = button;
+  }
+
+  /**
+   * Perform auto-save
+   */
+  performAutoSave() {
+    const gameState = this.registry.get('gameState');
+    const result = SaveSystem.saveGame(gameState);
+
+    if (result.success) {
+      this.showNotification('Auto-saved', 0x2196F3);
+    } else {
+      console.error('Auto-save failed:', result.message);
+    }
+  }
+
+  /**
+   * Perform manual save
+   */
+  performManualSave() {
+    const gameState = this.registry.get('gameState');
+    const result = SaveSystem.saveGame(gameState);
+
+    if (result.success) {
+      this.showNotification('Game saved!', 0x4CAF50);
+    } else {
+      this.showNotification('Save failed!', 0xFF5252);
+      console.error('Save failed:', result.message);
+    }
+  }
+
   shutdown() {
     this.registry.events.off('changedata-gold', this.onGoldChanged, this);
+
+    // Clean up auto-save timer
+    if (this.autoSaveTimer) {
+      this.autoSaveTimer.remove();
+    }
   }
 }
 
